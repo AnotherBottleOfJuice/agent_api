@@ -274,6 +274,7 @@ class DatabaseHandler:
         return MCP(
             name=payload.get("name", ""),
             url=payload.get("url", ""),
+            token=payload.get("token", ""),
         )
 
     def get_user_completions(self, user_id):

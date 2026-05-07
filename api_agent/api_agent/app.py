@@ -257,7 +257,8 @@ async def get_mcps(uid: str = Depends(get_current_user)):
         "status": "success",
         "operation": "get_mcps",
         "mcps": [
-            database_handler.get_mcp(uid, mcp_id) for mcp_id in mcps
+            database_handler.get_mcp(uid, mcp_id).__replace__(token="<hidden>")
+            for mcp_id in mcps
         ],
     }
 
