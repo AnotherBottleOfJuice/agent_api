@@ -29,8 +29,8 @@ jobs:
       - name: Build and push Agent API
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./agent_api/Dockerfile
+          context: ./api_agent
+          file: ./api_agent/Dockerfile
           push: true
           tags: ghcr.io/${{ env.REPO }}/agent-api:latest
 
@@ -38,7 +38,7 @@ jobs:
       - name: Build and push Simple MCP
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./simple_mcp
           file: ./simple_mcp/Dockerfile
           push: true
           tags: ghcr.io/${{ env.REPO }}/simple-mcp:latest
