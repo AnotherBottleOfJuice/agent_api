@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  simple_mcp:
+    build: ./simple_mcp
+    ports:
+      - "8015:8015"
+    restart: always
+
+  api_agent:
+    build: ./api_agent
+    ports:
+      - "8000:8000"
+    restart: always
+      

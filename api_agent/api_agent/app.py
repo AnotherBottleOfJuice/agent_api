@@ -15,11 +15,9 @@ load_dotenv()
 app = FastAPI()
 database_handler = DatabaseHandler('api_agent.db')
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEFAULT_MCP_URL = os.getenv('DEFAULT_MCP_URL')
-DEFAULT_MCP_TOKEN = os.getenv('DEFAULT_MCP_TOKEN')
-DEFAULT_MCP_NAME = os.getenv('DEFAULT_MCP_NAME')
-APP_PORT = int(os.getenv('APP_PORT', '8000'))
-APP_HOST = os.getenv('APP_HOST', '127.0.0.1')
+SIMPLE_MCP_URL = os.getenv('SIMPLE_MCP_URL')
+SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
+SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME')
 
 database_handler.connect()
 
@@ -46,11 +44,11 @@ async def add_user(key: str = Header(None, title="Admin Key")):
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create user")
 
-    default_mcp_id = await add_mcp(
+    simple_mcp_id = await add_mcp(
         MCP(
-            name=DEFAULT_MCP_NAME,
-            url=DEFAULT_MCP_URL,
-            token=DEFAULT_MCP_TOKEN
+            name=SIMPLE_MCP_NAME,
+            url=SIMPLE_MCP_URL,
+            token=SIMPLE_MCP_TOKEN
         ),
         uid=user_id
     )
@@ -60,7 +58,7 @@ async def add_user(key: str = Header(None, title="Admin Key")):
         "operation": "add_user",
         "user_id": user_id,
         "user_token": user_token,
-        "default_mcp_id": default_mcp_id,
+        "simple_mcp_id": simple_mcp_id,
     }
 
 @app.post('/v1/chat/completions', status_code=status.HTTP_201_CREATED)
@@ -262,11 +260,3 @@ async def get_mcps(uid: str = Depends(get_current_user)):
             for mcp_id in mcps
         ],
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        app,
-        host=APP_HOST,
-        port=APP_PORT,
-    )

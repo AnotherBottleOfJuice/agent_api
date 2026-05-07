@@ -7,12 +7,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 load_dotenv()
 
-DEFAULT_MCP_NAME = os.getenv('DEFAULT_MCP_NAME', 'simple_mcp')
-DEFAULT_MCP_HOST = os.getenv('DEFAULT_MCP_HOST', '0.0.0.0')
-DEFAULT_MCP_PORT = int(os.getenv('DEFAULT_MCP_PORT', '8010'))
-DEFAULT_MCP_TOKEN = os.getenv('DEFAULT_MCP_TOKEN')
+SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME', 'simple_mcp')
+SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
 
-mcp = FastMCP(name=DEFAULT_MCP_NAME)
+mcp = FastMCP(name=SIMPLE_MCP_NAME)
 
 @mcp.tool()
 async def multiply(a: int):
@@ -45,17 +43,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         except Exception:
             return JSONResponse(status_code=401, content={"detail": "Invalid token format"})
 
-        if token != DEFAULT_MCP_TOKEN:
+        if token != SIMPLE_MCP_TOKEN:
             return JSONResponse(status_code=401, content={"detail": "Invalid token"})
 
         return await call_next(request)
 
 app.add_middleware(AuthMiddleware)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        app,
-        host=DEFAULT_MCP_HOST,
-        port=DEFAULT_MCP_PORT
-    )
