@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 load_dotenv()
 
-SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME', 'simple_mcp')
+SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME')
 SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
 
 mcp = FastMCP(name=SIMPLE_MCP_NAME)

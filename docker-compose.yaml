@@ -10,6 +10,6 @@ services:
   api_agent:
     build: ./api_agent
     ports:
-      - "8000:8000"
+      - "4015:4015"
     restart: always
       
