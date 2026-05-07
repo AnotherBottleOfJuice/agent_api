@@ -54,3 +54,13 @@ class UpdateCompletion:
     mcp_ids_to_add: Optional[list[int]] = None
     mcp_ids_to_remove: Optional[list[int]] = None
 
+
+
+__all__ = [
+    'LLMConfig', 
+    'MCP', 
+    'Message', 
+    'ChatCompletion', 
+    'CreateCompletion', 
+    'UpdateCompletion'
+]

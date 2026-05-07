@@ -2,8 +2,7 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 
-from api_agent.api_agent.api_types import LLMConfig, MCP, ChatCompletion
-
+from api_agent.api_types import LLMConfig, MCP, ChatCompletion
 
 class DatabaseHandler:
     def __init__(self, db_name):
