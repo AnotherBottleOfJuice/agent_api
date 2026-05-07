@@ -2,6 +2,7 @@ from fastapi import FastAPI, Header, HTTPException, Depends, status
 import os
 from dotenv import load_dotenv
 import uuid
+from dataclasses import replace
 
 from database import DatabaseHandler
 
@@ -257,7 +258,7 @@ async def get_mcps(uid: str = Depends(get_current_user)):
         "status": "success",
         "operation": "get_mcps",
         "mcps": [
-            database_handler.get_mcp(uid, mcp_id).__replace__(token="<hidden>")
+            replace(database_handler.get_mcp(uid, mcp_id), token=None)
             for mcp_id in mcps
         ],
     }
