@@ -1,0 +1,41 @@
+name: Build and Push Images
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Сборка Agent API
+      - name: Build and push Agent API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./agent_api/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/agent-api:latest
+
+      # Сборка Simple MCP
+      - name: Build and push Simple MCP
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./simple_mcp/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/simple-mcp:latest
