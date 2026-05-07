@@ -37,15 +37,20 @@ pip install -e .
 
 ### Configuration
 
-Create a `.env` file:
+Create a `.env` file like:
 
 ```bash
-SECRET_KEY=your-secret-admin-key
-DEFAULT_MCP_URL=http://localhost:8001
-DEFAULT_MCP_TOKEN=default-token
-DEFAULT_MCP_NAME=arithmetic
+# Server configuration
+SECRET_KEY=abacaba
 APP_PORT=8000
 APP_HOST=127.0.0.1
+
+# Default MCP server
+DEFAULT_MCP_NAME=Default-MCP
+DEFAULT_MCP_URL=http://127.0.0.1:8010/mcp
+DEFAULT_MCP_HOST=127.0.0.1
+DEFAULT_MCP_PORT=8010
+DEFAULT_MCP_TOKEN=abacaba
 ```
 
 ### Running the Server
