@@ -7,7 +7,7 @@ name = "agent_api"
 version = "0.1.0"
 description = "Agent API service and a simple MCP example (FastAPI + MCP)."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 keywords = ["fastapi", "mcp", "agent", "api"]
 classifiers = [
