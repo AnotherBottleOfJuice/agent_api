@@ -274,7 +274,6 @@ class DatabaseHandler:
         return MCP(
             name=payload.get("name", ""),
             url=payload.get("url", ""),
-            token=payload.get("token", ""),
         )
 
     def get_user_completions(self, user_id):
@@ -300,22 +299,10 @@ class DatabaseHandler:
     def get_user_mcps(self, user_id):
         with self._connect() as conn:
             rows = conn.execute(
-                'SELECT mcp_id, payload FROM mcp WHERE user_id = ? ORDER BY mcp_id DESC',
+                'SELECT mcp_id FROM mcp WHERE user_id = ? ORDER BY mcp_id DESC',
                 (user_id,),
             ).fetchall()
-
-        result = []
-        for mcp_id, payload_raw in rows:
-            payload = json.loads(payload_raw)
-            result.append(
-                {
-                    "mcp_id": mcp_id,
-                    "name": payload.get("name"),
-                    "url": payload.get("url"),
-                    "created_at": payload.get("created_at"),
-                }
-            )
-        return result
+        return [row[0] for row in rows]
 
     def get_user_llm_configs(self, user_id):
         with self._connect() as conn:
