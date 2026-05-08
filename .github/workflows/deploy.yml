@@ -20,18 +20,22 @@ jobs:
           script: |
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+            docker network create mcp_network || true
+
             docker stop juice_simple_mcp juice_agent_api || true
             docker rm juice_simple_mcp juice_agent_api || true
 
             docker pull ghcr.io/anotherbottleofjuice/agent_api/simple-mcp:latest
-            docker run -d --name juice_simple_mcp -p 8015:8000 \
+            docker run -d --name juice_simple_mcp \
+              --network mcp_network \
+              -p 8015:8000 \
               -e SIMPLE_MCP_TOKEN=abacaba \
               ghcr.io/anotherbottleofjuice/agent_api/simple-mcp:latest
 
             docker pull ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
-            docker run -d --name juice_agent_api -p 4015:8000 \
-              -e DEFAULT_MCP_URL=http://localhost:8015/mcp \
+            docker run -d --name juice_agent_api \
+              --network mcp_network \
+              -p 4015:8000 \
+              -e DEFAULT_MCP_URL=http://juice_simple_mcp:8000/sse \
               -e DEFAULT_MCP_TOKEN=abacaba \
               ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
-
-            docker image prune -f
