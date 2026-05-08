@@ -22,7 +22,7 @@ async def divide(a: int):
     """Divides the given argument by 2 (rounded down)"""
     return a // 2
 
-app = mcp.streamable_http_app()
+app = mcp.streamable_http_app(host="0.0.0.0")
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
