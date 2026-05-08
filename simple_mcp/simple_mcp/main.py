@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -22,7 +23,9 @@ async def divide(a: int):
     """Divides the given argument by 2 (rounded down)"""
     return a // 2
 
-app = mcp.streamable_http_app(host="0.0.0.0")
+# Disable DNS rebinding protection for Docker internal communication
+security_settings = TransportSecuritySettings(enable_dns_rebinding_protection=False)
+app = mcp.streamable_http_app(transport_security=security_settings)
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
