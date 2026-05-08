@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict, is_dataclass
 import json
-from typing import Any, Optional, Literal
+from typing import Any, Optional, Literal, List
 
 
 def _to_jsonable(value):
@@ -34,25 +34,25 @@ class MCP:
 class Message:
     role: Literal["user", "assistant", "system", "tool"]
     content: Optional[Any] = None
-    tool_calls: Optional[list[Any]] = None
+    tool_calls: Optional[List[Any]] = None
     tool_call_id: Optional[str] = None
 
 @dataclass
 class ChatCompletion:
-    messages: list[Message]
+    messages: List[Message]
 
 @dataclass
 class CreateCompletion:
     completion: ChatCompletion
     llm_config_id: int
-    mcp_ids: list[int]
+    mcp_ids: List[int]
 
 @dataclass
 class UpdateCompletion:
     completion: Optional[ChatCompletion] = None
     llm_config_id: Optional[int] = None
-    mcp_ids_to_add: Optional[list[int]] = None
-    mcp_ids_to_remove: Optional[list[int]] = None
+    mcp_ids_to_add: Optional[List[int]] = None
+    mcp_ids_to_remove: Optional[List[int]] = None
 
 
 
