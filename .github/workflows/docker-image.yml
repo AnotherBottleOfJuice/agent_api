@@ -29,8 +29,8 @@ jobs:
       - name: Build and push Agent API
         uses: docker/build-push-action@v5
         with:
-          context: ./api_agent
-          file: ./api_agent/Dockerfile
+          context: ./agent_api
+          file: ./agent_api/Dockerfile
           push: true
           tags: ghcr.io/${{ env.REPO }}/agent-api:latest
 

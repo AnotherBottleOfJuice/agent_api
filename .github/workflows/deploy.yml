@@ -1,11 +1,14 @@
-name: Build and Deploy
+name: Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "Build and Push Images" ]
+    types: [ completed ]
     branches: [ "main" ]
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -15,6 +18,8 @@ jobs:
           username: ai360p2026s015
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             docker stop juice_simple_mcp juice_agent_api || true
             docker rm juice_simple_mcp juice_agent_api || true
 
@@ -28,3 +33,5 @@ jobs:
               -e DEFAULT_MCP_URL=http://ai360.velkerr.ru:8015/mcp \
               -e DEFAULT_MCP_TOKEN=abacaba \
               ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
+
+            docker image prune -f
