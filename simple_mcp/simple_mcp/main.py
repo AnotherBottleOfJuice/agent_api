@@ -4,6 +4,7 @@ from mcp.server.fastmcp import FastMCP
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 load_dotenv()
 
@@ -24,6 +25,9 @@ async def divide(a: int):
 
 app = mcp.streamable_http_app()
 
+app.add_middleware(
+    TrustedHostMiddleware, allowed_hosts=["*"]
+)
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
