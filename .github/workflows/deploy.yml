@@ -36,6 +36,6 @@ jobs:
             docker run -d --name juice_agent_api \
               --network mcp_network \
               -p 4015:8000 \
-              -e DEFAULT_MCP_URL=http://juice_simple_mcp:8000/sse \
+              -e DEFAULT_MCP_URL=http://juice_simple_mcp:8000/mcp \
               -e DEFAULT_MCP_TOKEN=abacaba \
               ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
