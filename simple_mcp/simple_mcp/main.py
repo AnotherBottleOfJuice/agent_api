@@ -13,6 +13,8 @@ SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
 
 mcp = FastMCP(name=SIMPLE_MCP_NAME)
 
+mcp.settings.transport_security.enable_dns_rebinding_protection = False
+
 @mcp.tool()
 async def multiply(a: int):
     """Multiplies argument by 2"""
