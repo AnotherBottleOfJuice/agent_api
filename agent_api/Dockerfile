@@ -9,4 +9,4 @@ ENV DEFAULT_MCP_NAME=Simple-MCP
 RUN pip install .
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "api_agent.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "agent_api.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -8,7 +8,7 @@ services:
     restart: always
 
   api_agent:
-    build: ./api_agent
+    build: ./agent_api
     ports:
       - "4015:4015"
     restart: always

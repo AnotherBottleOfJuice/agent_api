@@ -4,7 +4,6 @@ from mcp.server.fastmcp import FastMCP
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 load_dotenv()
 
@@ -49,7 +48,3 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 app.add_middleware(AuthMiddleware)
-
-app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["*"]
-)

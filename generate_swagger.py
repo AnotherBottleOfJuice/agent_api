@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from api_agent.app import app
+from agent_api.app import app
 
 
 def main() -> None:
