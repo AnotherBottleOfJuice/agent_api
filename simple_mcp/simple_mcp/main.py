@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -11,7 +11,7 @@ load_dotenv()
 SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME')
 SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
 
-mcp = FastMCP(name=SIMPLE_MCP_NAME)
+mcp = MCPServer(name=SIMPLE_MCP_NAME)
 
 @mcp.tool()
 async def multiply(a: int):
