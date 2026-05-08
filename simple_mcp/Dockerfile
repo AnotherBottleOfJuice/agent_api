@@ -5,6 +5,8 @@ COPY . .
 ENV SIMPLE_MCP_TOKEN=abacaba
 ENV SIMPLE_MCP_NAME=Simple-MCP
 
+RUN python -m venv .venv
+RUN source ./.venv/bin/activate
 RUN pip install .
 EXPOSE 8015
 

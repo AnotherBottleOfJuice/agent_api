@@ -4,10 +4,11 @@ COPY . .
 
 ENV SECRET_KEY=abacaba
 
-ENV SIMPLE_MCP_URL=http://simple_mcp:8015/mcp
 ENV SIMPLE_MCP_TOKEN=abacaba
 ENV SIMPLE_MCP_NAME=Simple-MCP
 
+RUN python -m venv .venv
+RUN source ./.venv/bin/activate
 RUN pip install .
 EXPOSE 4015
 
