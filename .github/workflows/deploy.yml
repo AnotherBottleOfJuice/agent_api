@@ -1,0 +1,33 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ai360.velkerr.ru
+          username: ai360p2026s015
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            # Остановка и удаление старых контейнеров (игнорируем ошибки, если их нет)
+            docker stop juice_simple_mcp juice_agent_api || true
+            docker rm juice_simple_mcp juice_agent_api || true
+
+            # Обновление и запуск Simple MCP
+            docker pull ghcr.io/anotherbottleofjuice/agent_api/simple-mcp:latest
+            docker run -d --name juice_simple_mcp -p 8015:8000 \
+              -e SIMPLE_MCP_TOKEN=abacaba \
+              ghcr.io/anotherbottleofjuice/agent_api/simple-mcp:latest
+
+            # Обновление и запуск Agent API
+            docker pull ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
+            docker run -d --name juice_agent_api -p 4015:8000 \
+              -e DEFAULT_MCP_URL=http://ai360.velkerr.ru:8015/mcp \
+              -e DEFAULT_MCP_TOKEN=abacaba \
+              ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
