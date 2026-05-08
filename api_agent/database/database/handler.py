@@ -211,7 +211,7 @@ class DatabaseHandler:
                 ).fetchone()
                 if mcp_row:
                     mcp_payload = json.loads(mcp_row[0])
-                    mcps[mcp_payload.get("name", "")] = MCP(
+                    mcps[mcp_id] = MCP(
                         name=mcp_payload.get("name", ""),
                         url=mcp_payload.get("url", ""),
                         token=mcp_payload.get("token", ""),
