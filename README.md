@@ -2,20 +2,22 @@
 
 `fastapi` `mcp` `llm` `docker` `openai-compatible`
 
-HTTP API для агентных LLM-сценариев с поддержкой MCP-серверов.
+HTTP API for agent-style LLM workflows with MCP server integration.
 
-## Что в репозитории
+> **Note:** `abacaba` in this README is a demo/test token placeholder. Replace it with your own secure values in real environments.
 
-- `agent_api/` — основной FastAPI API (управление пользователями, LLM-конфигами, MCP-конфигами, completions)
-- `simple_mcp/` — пример MCP-сервера с инструментами `multiply` и `divide`
-- `docker-compose.yaml` — запуск двух сервисов
+## Repository contents
 
-## Быстрый старт (Docker, рекомендуется)
+- `agent_api/` — main FastAPI API (users, LLM configs, MCP configs, completions)
+- `simple_mcp/` — example MCP server with `multiply` and `divide` tools
+- `docker-compose.yaml` — runs both services together
 
-### Вариант 1: готовые образы (как в деплое)
+## Quick start (Docker, recommended)
+
+### Option 1: prebuilt images (same approach as deployment)
 
 ```bash
-# 1) Сеть
+# 1) Network
 sudo docker network create mcp_network || true
 
 # 2) Simple MCP
@@ -37,22 +39,22 @@ sudo docker run -d --name juice_agent_api \
   ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
 ```
 
-Swagger: `http://localhost:4015/docs`
+Swagger UI: `http://localhost:4015/docs`
 
-### Вариант 2: локальная сборка через docker compose
+### Option 2: local build with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-По умолчанию сервисы поднимаются на:
+Default ports:
 
 - Agent API: `http://localhost:4015`
 - Simple MCP: `http://localhost:8015`
 
-## Локальный запуск без Docker
+## Local run without Docker
 
-> Важно: `agent_api` и `simple_mcp` сейчас публикуются с одинаковым именем пакета, поэтому удобнее запускать их в разных виртуальных окружениях.
+> Important: `agent_api` and `simple_mcp` currently use the same package name in metadata, so it is safer to run them in separate virtual environments.
 
 ### Agent API
 
@@ -62,7 +64,7 @@ pip install -e .
 uvicorn agent_api.app:app --host 0.0.0.0 --port 8000
 ```
 
-Переменные окружения:
+Environment variables:
 
 ```bash
 SECRET_KEY=abacaba
@@ -79,52 +81,52 @@ pip install -e .
 uvicorn simple_mcp.main:app --host 0.0.0.0 --port 8010
 ```
 
-Переменные окружения:
+Environment variables:
 
 ```bash
 SIMPLE_MCP_NAME=Simple-MCP
 SIMPLE_MCP_TOKEN=abacaba
 ```
 
-## Аутентификация
+## Authentication
 
 ### Agent API
 
-- Для большинства endpoint’ов обязателен заголовок `User-Token`.
-- Для создания пользователя (`/admin/add_user`) нужен заголовок `key` со значением `SECRET_KEY`.
+- `User-Token` header is required for most endpoints.
+- `POST /admin/add_user` requires header `key` with the value of `SECRET_KEY`.
 
 ### Simple MCP
 
-- Требуется заголовок `Authorization`.
-- Допустимы форматы:
+- `Authorization` header is required.
+- Supported formats:
   - `Authorization: Bearer <token>`
   - `Authorization: <token>`
 
-## Основные endpoint’ы Agent API
+## Main Agent API endpoints
 
-- `POST /admin/add_user` — создать пользователя и дефолтный MCP-конфиг
-- `POST /v1/chat/llm/` — добавить LLM-конфиг
-- `GET /v1/chat/llm/` — получить LLM-конфиги пользователя
-- `POST /v1/chat/mcp` — добавить MCP-конфиг
-- `GET /v1/chat/mcp` — получить MCP-конфиги пользователя
-- `POST /v1/chat/completions` — создать completion
-- `PUT /v1/chat/completions/{completion_id}` — продолжить/обновить completion
-- `GET /v1/chat/completions` — список completion’ов
-- `GET /v1/chat/completions/{completion_id}` — получить completion
-- `DELETE /v1/chat/completions/{completion_id}` — удалить completion
+- `POST /admin/add_user` — create user and default MCP config
+- `POST /v1/chat/llm/` — add LLM config
+- `GET /v1/chat/llm/` — list user LLM configs
+- `POST /v1/chat/mcp` — add MCP config
+- `GET /v1/chat/mcp` — list user MCP configs
+- `POST /v1/chat/completions` — create completion
+- `PUT /v1/chat/completions/{completion_id}` — continue/update completion
+- `GET /v1/chat/completions` — list completions
+- `GET /v1/chat/completions/{completion_id}` — get completion
+- `DELETE /v1/chat/completions/{completion_id}` — delete completion
 
-## Пример использования API
+## API usage example
 
-### 1) Создать пользователя
+### 1) Create a user
 
 ```bash
 curl -X POST http://localhost:4015/admin/add_user \
   -H "key: abacaba"
 ```
 
-Из ответа сохранить `user_token`.
+Save `user_token` from the response.
 
-### 2) Добавить LLM-конфиг
+### 2) Add an LLM config
 
 ```bash
 curl -X POST http://localhost:4015/v1/chat/llm/ \
@@ -138,7 +140,7 @@ curl -X POST http://localhost:4015/v1/chat/llm/ \
   }'
 ```
 
-### 3) Создать completion
+### 3) Create a completion
 
 ```bash
 curl -X POST http://localhost:4015/v1/chat/completions \
@@ -147,7 +149,7 @@ curl -X POST http://localhost:4015/v1/chat/completions \
   -d '{
     "completion": {
       "messages": [
-        {"role": "user", "content": "Умножь 10 и потом раздели результат"}
+        {"role": "user", "content": "Multiply 10 and then divide the result"}
       ]
     },
     "llm_config_id": 1,
@@ -155,14 +157,14 @@ curl -X POST http://localhost:4015/v1/chat/completions \
   }'
 ```
 
-## Технологии
+## Technologies
 
 - FastAPI
 - Uvicorn
 - MCP SDK
 - OpenAI-compatible API clients
-- SQLite (через `database` пакет)
+- SQLite (via the `database` package)
 
-## Лицензия
+## License
 
 MIT
