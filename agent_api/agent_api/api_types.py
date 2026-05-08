@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict, is_dataclass
 import json
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 
 
 def _to_jsonable(value):
@@ -32,8 +32,8 @@ class MCP:
 
 @dataclass
 class Message:
-    role: str
-    content: Any
+    role: Literal["user", "assistant", "system", "tool"]
+    content: Optional[Any] = None
     tool_calls: Optional[list[Any]] = None
     tool_call_id: Optional[str] = None
 
