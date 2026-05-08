@@ -149,7 +149,7 @@ curl -X POST http://localhost:4015/v1/chat/completions \
   -d '{
     "completion": {
       "messages": [
-        {"role": "user", "content": "Multiply 10 and then divide the result"}
+        {"role": "user", "content": "Multiply 10 by 5 and then divide the result by 2"}
       ]
     },
     "llm_config_id": 1,
