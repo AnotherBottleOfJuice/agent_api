@@ -1,11 +1,10 @@
 import os
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
-from mcp.server.transport_security import TransportSecuritySettings
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi.middleware.cors import CORSMiddleware   # ← new import
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -24,12 +23,11 @@ async def divide(a: int):
     """Divides the given argument by 2 (rounded down)"""
     return a // 2
 
-security_settings = TransportSecuritySettings(enable_dns_rebinding_protection=False)
-app = mcp.streamable_http_app(transport_security=security_settings)
+app = mcp.streamable_http_app()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],         
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
