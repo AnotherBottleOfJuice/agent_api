@@ -25,10 +25,6 @@ async def divide(a: int):
 
 app = mcp.streamable_http_app()
 
-app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["*"]
-)
-
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.method == "OPTIONS":
@@ -53,3 +49,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 app.add_middleware(AuthMiddleware)
+
+app.add_middleware(
+    TrustedHostMiddleware, allowed_hosts=["*"]
+)
