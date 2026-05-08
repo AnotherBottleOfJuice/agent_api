@@ -15,9 +15,9 @@ load_dotenv()
 app = FastAPI()
 database_handler = DatabaseHandler('api_agent.db')
 SECRET_KEY = os.getenv('SECRET_KEY')
-SIMPLE_MCP_URL = os.getenv('SIMPLE_MCP_URL')
-SIMPLE_MCP_TOKEN = os.getenv('SIMPLE_MCP_TOKEN')
-SIMPLE_MCP_NAME = os.getenv('SIMPLE_MCP_NAME')
+DEFAULT_MCP_URL = os.getenv('DEFAULT_MCP_URL')
+DEFAULT_MCP_TOKEN = os.getenv('DEFAULT_MCP_TOKEN')
+DEFAULT_MCP_NAME = os.getenv('DEFAULT_MCP_NAME')
 
 database_handler.connect()
 
@@ -44,11 +44,11 @@ async def add_user(key: str = Header(None, title="Admin Key")):
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create user")
 
-    simple_mcp_id = await add_mcp(
+    default_mcp_id = await add_mcp(
         MCP(
-            name=SIMPLE_MCP_NAME,
-            url=SIMPLE_MCP_URL,
-            token=SIMPLE_MCP_TOKEN
+            name=DEFAULT_MCP_NAME,
+            url=DEFAULT_MCP_URL,
+            token=DEFAULT_MCP_TOKEN
         ),
         uid=user_id
     )
@@ -58,7 +58,7 @@ async def add_user(key: str = Header(None, title="Admin Key")):
         "operation": "add_user",
         "user_id": user_id,
         "user_token": user_token,
-        "simple_mcp_id": simple_mcp_id,
+        "default_mcp_id": default_mcp_id,
     }
 
 @app.post('/v1/chat/completions', status_code=status.HTTP_201_CREATED)
