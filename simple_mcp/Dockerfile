@@ -2,7 +2,6 @@ FROM python:3.13-slim
 WORKDIR /app
 COPY . .
 
-ENV SIMPLE_MCP_TOKEN=abacaba
 ENV SIMPLE_MCP_NAME=Simple-MCP
 
 RUN pip install .
