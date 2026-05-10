@@ -85,7 +85,7 @@ async def make_completion(
             else:
                 cnt_duplicate_tool_calls = 0
 
-            last_tool_call = tool_call.id
+            last_tool_call = tool_call.function.name
 
             mcp_id, tool_name = tool_call.function.name.split('__')
 
