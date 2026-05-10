@@ -58,10 +58,11 @@ async def make_completion(
         llm_config : LLMConfig,
         mcps: dict[int, MCP]
         ):
+    
+    last_tool_call = None
+    cnt_duplicate_tool_calls = 0
 
-    for _ in range(10):
-        last_tool_call = None
-        cnt_duplicate_tool_calls = 0
+    for _ in range(10): 
 
         response = await generate_response(completion, llm_config, mcps)
 
