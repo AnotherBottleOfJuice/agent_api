@@ -84,7 +84,7 @@ async def make_completion(
                 if cnt_duplicate_tool_calls >= 3:
                     raise LLMException("LLM is stuck in a loop calling the same tool without making progress")
             else:
-                cnt_duplicate_tool_calls = 0
+                cnt_duplicate_tool_calls = 1
 
             last_tool_call = tool_call.function.name
 
