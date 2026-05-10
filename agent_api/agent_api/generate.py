@@ -59,9 +59,10 @@ async def make_completion(
         mcps: dict[int, MCP]
         ):
 
-    last_tool_call = None
-
     for _ in range(10):
+        last_tool_call = None
+        cnt_duplicate_tool_calls = 0
+
         response = await generate_response(completion, llm_config, mcps)
 
         choice : Choice = response.choices[0]
@@ -78,7 +79,11 @@ async def make_completion(
 
         for tool_call in choice.message.tool_calls:
             if tool_call.id == last_tool_call:
-                raise LLMException("LLM is stuck in a loop calling the same tool without making progress")
+                cnt_duplicate_tool_calls += 1
+                if cnt_duplicate_tool_calls >= 3:
+                    raise LLMException("LLM is stuck in a loop calling the same tool without making progress")
+            else:
+                cnt_duplicate_tool_calls = 0
 
             last_tool_call = tool_call.id
 
