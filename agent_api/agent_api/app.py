@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Header, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import APIKeyHeader
+from fastapi.openapi.utils import get_openapi
 import os
 from dotenv import load_dotenv
 import uuid
@@ -24,6 +25,31 @@ database_handler.connect()
 
 admin_key_scheme = APIKeyHeader(name="X-Admin-Key", auto_error=False)
 user_token_scheme = APIKeyHeader(name="X-User-Token", auto_error=False)
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Agent API",
+        version="1.0.0",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "AdminKeyAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-Admin-Key"
+        },
+        "UserTokenAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-User-Token"
+        }
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 async def get_current_user(user_token: str = Depends(user_token_scheme)):
     if not user_token:
