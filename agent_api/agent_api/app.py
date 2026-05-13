@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Header, HTTPException, Depends, status
+from fastapi.security import APIKeyHeader
 import os
 from dotenv import load_dotenv
 import uuid
@@ -21,7 +22,10 @@ DEFAULT_MCP_NAME = os.getenv('DEFAULT_MCP_NAME')
 
 database_handler.connect()
 
-async def get_current_user(user_token: str = Header(None, alias="User-Token")):
+admin_key_scheme = APIKeyHeader(name="X-Admin-Key", auto_error=False)
+user_token_scheme = APIKeyHeader(name="X-User-Token", auto_error=False)
+
+async def get_current_user(user_token: str = Depends(user_token_scheme)):
     if not user_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing")
     try:
@@ -32,7 +36,7 @@ async def get_current_user(user_token: str = Header(None, alias="User-Token")):
     return user_id
 
 @app.post("/admin/add_user", status_code=status.HTTP_201_CREATED)
-async def add_user(key: str = Header(None, title="Admin Key")):
+async def add_user(key: str = Depends(admin_key_scheme)):
     if key != SECRET_KEY:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
