@@ -1,5 +1,5 @@
-from .api_agent.api_types import *
-from .api_agent.app import app
+from .agent_api.api_types import *
+from .agent_api.app import app
 
 __all__ = [
     'app',

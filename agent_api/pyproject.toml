@@ -32,5 +32,5 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["api_agent*"]
+include = ["agent_api*", "database*"]
 

@@ -56,7 +56,7 @@ DEFAULT_MCP_TOKEN=abacaba
 ### Running the Server
 
 ```bash
-python -m api_agent.app
+python -m uvicorn agent_api.app:app
 ```
 
 The API will be available at `http://localhost:8000/docs`

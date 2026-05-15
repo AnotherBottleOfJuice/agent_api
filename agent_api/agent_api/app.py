@@ -4,7 +4,6 @@ from fastapi.openapi.utils import get_openapi
 import os
 from dotenv import load_dotenv
 import uuid
-from dataclasses import replace
 
 from database import DatabaseHandler
 
@@ -264,7 +263,7 @@ async def get_mcps(uid: str = Depends(get_current_user)):
         "status": "success",
         "operation": "get_mcps",
         "mcps": [
-            replace(database_handler.get_mcp(uid, mcp_id), token=None)
+            database_handler.get_mcp(uid, mcp_id)
             for mcp_id in mcps
         ],
     }
