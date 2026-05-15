@@ -110,7 +110,7 @@ async def create_chat_completion(
         "mcp_ids": request.mcp_ids,
     }
 
-@app.post('/v1/chat/completions/{completion_id}')
+@app.put('/v1/chat/completions/{completion_id}')
 async def update_chat_completion(
         completion_id: int,
         request: UpdateCompletion,
