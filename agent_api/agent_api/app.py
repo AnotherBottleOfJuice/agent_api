@@ -126,7 +126,7 @@ async def update_chat_completion(
 
     if request.llm_config_id is not None:
         try:
-            llm_config_id = database_handler.get_llm_config(uid, request.llm_config_id)
+            llm_config_id = request.llm_config_id
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
