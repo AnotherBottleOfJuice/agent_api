@@ -37,8 +37,8 @@ async def get_current_user(user_token: str = Depends(user_token_scheme)):
     return user_id
 
 @app.post("/admin/add_user", status_code=status.HTTP_201_CREATED)
-async def add_user(key: str = Depends(admin_key_scheme)):
-    if key != SECRET_KEY:
+async def add_user(x_admin_key: str = Depends(admin_key_scheme)):
+    if not x_admin_key or x_admin_key != SECRET_KEY:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     user_token = str(uuid.uuid4())
@@ -105,11 +105,12 @@ async def create_chat_completion(
         "status": "success",
         "operation": "add_completion",
         "completion_id": completion_id,
+        "completion" : completion,
         "llm_config_id": request.llm_config_id,
         "mcp_ids": request.mcp_ids,
     }
 
-@app.put('/v1/chat/completions/{completion_id}')
+@app.post('/v1/chat/completions/{completion_id}')
 async def update_chat_completion(
         completion_id: int,
         request: UpdateCompletion,
@@ -172,6 +173,7 @@ async def update_chat_completion(
         "status": "success",
         "operation": "update_completion",
         "completion_id": completion_id,
+        "completion" : completion,
         "llm_config": database_handler.get_llm_config(uid, llm_config_id),
         "mcps": mcps,
     }
