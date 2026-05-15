@@ -1,165 +1,169 @@
 # Agent API
 
-`fastapi` `mcp` `llm` `agent` `async` `openai-compatible`
+`fastapi` `mcp` `llm` `docker` `openai-compatible`
 
-A production-ready HTTP API for autonomous agents that integrate Large Language Models with Model Context Protocol (MCP) servers. Built with FastAPI and async Python.
+HTTP API for agent-style LLM workflows with MCP server integration.
 
-## Features
+> **Note:** `abacaba` in this README is a demo/test token placeholder. Replace it with your own secure values in real environments.
 
-**Core Capabilities**
-- Autonomous agent execution with integrated LLM support
-- Multi-MCP server integration (Streamable HTTP transport)
-- Persistent chat history and state management
-- Multi-user support with token-based authentication
-- Data isolation between users
-- OpenAPI/Swagger documentation at `/docs`
+## Repository contents
 
-**Agent Features**
-- OpenAI-compatible `/v1/chat/completions` endpoint
-- Tool calling and execution from connected MCP servers
-- Built-in arithmetic MCP server (multiplication, division)
-- Configurable LLM endpoints (BASE_URL, API_KEY, MODEL)
-- Safety guards: tool call limits, iteration limits
-- Seamless tool integration between agent cycles
+- `agent_api/` — main FastAPI API (users, LLM configs, MCP configs, completions)
+- `simple_mcp/` — example MCP server with `multiply` and `divide` tools
+- `docker-compose.yaml` — runs both services together
 
-**Database & Storage**
-- SQLite backend for chat history and configurations
-- Async-friendly database layer (aiosqlite)
-- User-scoped data storage
+## Quick start (Docker, recommended)
 
-## Quick Start
-
-### Installation
+### Option 1: prebuilt images (same approach as deployment)
 
 ```bash
-pip install -e .
+# 1) Network
+sudo docker network create mcp_network || true
+
+# 2) Simple MCP
+sudo docker run -d --name juice_simple_mcp \
+  --network mcp_network \
+  -p 8015:8000 \
+  -e SIMPLE_MCP_NAME=Simple-MCP \
+  -e SIMPLE_MCP_TOKEN=abacaba \
+  ghcr.io/anotherbottleofjuice/agent_api/simple-mcp:latest
+
+# 3) Agent API
+sudo docker run -d --name juice_agent_api \
+  --network mcp_network \
+  -p 4015:8000 \
+  -e SECRET_KEY=abacaba \
+  -e DEFAULT_MCP_NAME=Simple-MCP \
+  -e DEFAULT_MCP_URL=http://juice_simple_mcp:8000/mcp \
+  -e DEFAULT_MCP_TOKEN=abacaba \
+  ghcr.io/anotherbottleofjuice/agent_api/agent-api:latest
 ```
 
-### Configuration
+Swagger UI: `http://localhost:4015/docs`
 
-Create a `.env` file like:
+### Option 2: local build with Docker Compose
 
 ```bash
-# Server configuration
-SECRET_KEY=abacaba
-APP_PORT=8000
-APP_HOST=127.0.0.1
+docker compose up --build
+```
 
-# Default MCP server
-DEFAULT_MCP_NAME=Default-MCP
+Default ports:
+
+- Agent API: `http://localhost:4015`
+- Simple MCP: `http://localhost:8015`
+
+## Local run without Docker
+
+> Important: `agent_api` and `simple_mcp` currently use the same package name in metadata, so it is safer to run them in separate virtual environments.
+
+### Agent API
+
+```bash
+cd agent_api
+pip install -e .
+uvicorn agent_api.app:app --host 0.0.0.0 --port 8000
+```
+
+Environment variables:
+
+```bash
+SECRET_KEY=abacaba
+DEFAULT_MCP_NAME=Simple-MCP
 DEFAULT_MCP_URL=http://127.0.0.1:8010/mcp
-DEFAULT_MCP_HOST=127.0.0.1
-DEFAULT_MCP_PORT=8010
 DEFAULT_MCP_TOKEN=abacaba
 ```
 
-### Running the Server
+### Simple MCP
 
 ```bash
-python -m api_agent.app
+cd simple_mcp
+pip install -e .
+uvicorn simple_mcp.main:app --host 0.0.0.0 --port 8010
 ```
 
-The API will be available at `http://localhost:8000/docs`
-
-## API Usage
-
-### Authentication
-
-All requests require a `User-Token` header:
+Environment variables:
 
 ```bash
-curl -H "User-Token: your-user-token" http://localhost:8000/...
+SIMPLE_MCP_NAME=Simple-MCP
+SIMPLE_MCP_TOKEN=abacaba
 ```
 
-### Create a User (Admin Only)
+## Authentication
+
+### Agent API
+
+- `User-Token` header is required for most endpoints.
+- `POST /admin/add_user` requires header `key` with the value of `SECRET_KEY`.
+
+### Simple MCP
+
+- `Authorization` header is required.
+- Supported formats:
+  - `Authorization: Bearer <token>`
+  - `Authorization: <token>`
+
+## Main Agent API endpoints
+
+- `POST /admin/add_user` — create user and default MCP config
+- `POST /v1/chat/llm/` — add LLM config
+- `GET /v1/chat/llm/` — list user LLM configs
+- `POST /v1/chat/mcp` — add MCP config
+- `GET /v1/chat/mcp` — list user MCP configs
+- `POST /v1/chat/completions` — create completion
+- `PUT /v1/chat/completions/{completion_id}` — continue/update completion
+- `GET /v1/chat/completions` — list completions
+- `GET /v1/chat/completions/{completion_id}` — get completion
+- `DELETE /v1/chat/completions/{completion_id}` — delete completion
+
+## API usage example
+
+### 1) Create a user
 
 ```bash
-curl -X POST http://localhost:8000/admin/add_user \
-  -H "Admin-Key: your-secret-key"
+curl -X POST http://localhost:4015/admin/add_user \
+  -H "key: abacaba"
 ```
 
-### Example: Chat with Agent
+Save `user_token` from the response.
+
+### 2) Add an LLM config
 
 ```bash
-# Create a chat
-POST /chats
-Body: {"name": "My Chat"}
-Headers: {"User-Token": "user-token"}
-
-# Add LLM configuration
-POST /llm-configs
-Body: {
-  "name": "OpenAI GPT-4",
-  "base_url": "https://api.openai.com/v1",
-  "api_key": "sk-...",
-  "model": "gpt-4"
-}
-
-# Add message and get response
-POST /chats/{chat_id}/messages
-Body: {
-  "content": "Calculate 15 * 2 and then divide by 3"
-}
+curl -X POST http://localhost:4015/v1/chat/llm/ \
+  -H "Content-Type: application/json" \
+  -H "User-Token: <user_token>" \
+  -d '{
+    "config_name": "OpenAI",
+    "model": "gpt-4.1-mini",
+    "api_key": "<api_key>",
+    "base_url": "https://api.openai.com/v1"
+  }'
 ```
 
-## Architecture
+### 3) Create a completion
 
+```bash
+curl -X POST http://localhost:4015/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "User-Token: <user_token>" \
+  -d '{
+    "completion": {
+      "messages": [
+        {"role": "user", "content": "Multiply 10 by 5 and then divide the result by 2"}
+      ]
+    },
+    "llm_config_id": 1,
+    "mcp_ids": [1]
+  }'
 ```
-api_agent/
-├── app.py              # FastAPI application
-├── api_types.py        # Pydantic models
-├── api_exceptions.py   # Custom exceptions
-├── generate.py         # Agent logic and LLM integration
-└── mcp_utils.py        # MCP client utilities
-
-database/
-└── handler.py          # SQLite database handler
-
-simple_mcp/
-└── main.py             # Built-in MCP server (arithmetic tools)
-```
-
-## Key Requirements Met
-
-- Multi-user authentication with header-based tokens  
-- User data isolation and privacy  
-- LLM configuration management  
-- MCP server integration (Streamable HTTP)  
-- Chat history persistence  
-- Tool call safety limits (max 2 consecutive, 10 total)  
-- OpenAPI schema generation  
-- Async/await throughout for performance
 
 ## Technologies
 
-- **Framework**: FastAPI 0.95+
-- **ASGI Server**: Uvicorn 0.21+
-- **MCP Client**: mcp
-- **Database**: SQLite with aiosqlite
-- **Validation**: Pydantic
-- **Config**: python-dotenv
-
-## Security Notes
-
-- API tokens should be managed securely via environment variables
-- User data is completely isolated per user token
-- No hardcoded secrets in the codebase
-- Use `.env` files (excluded from version control) for sensitive data
-
-## Development
-
-```bash
-pip install -e ".[dev]"
-pytest
-```
-
-## Deployment
-
-Suitable for deployment on cloud platforms (Yandex Cloud, AWS, DigitalOcean, etc.) using:
-- Docker containerization
-- HTTPS with reverse proxy (nginx)
-- Environment-based configuration
-- Process management (systemd, supervisor, or Docker)
+- FastAPI
+- Uvicorn
+- MCP SDK
+- OpenAI-compatible API clients
+- SQLite (via the `database` package)
 
 ## License
 
